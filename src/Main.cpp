@@ -26,6 +26,7 @@ enum Phases {
 enum Phases phase = Disabled;
 
 HHOOK hKeyHook = nullptr;
+HHOOK hMouseHook = nullptr;
 HWND hOverlayWnd = nullptr;
 HWND hPowerDisplayWnd = nullptr;
 
@@ -47,6 +48,25 @@ LRESULT LLKeyboardProc(int code, WPARAM wParam, LPARAM lParam)
 		}
 	}
 	return CallNextHookEx(hKeyHook, code, wParam, lParam);
+}
+
+LRESULT LLMouseProc(int code, WPARAM wParam, LPARAM lParam)
+{
+	if (code == HC_ACTION) {
+		if (wParam == WM_LBUTTONDOWN && (ENABLE_KEYBIND == VK_LBUTTON || RESTART_KEYBIND == VK_LBUTTON || TOGGLE_KEYBIND == VK_LBUTTON)) {
+			PostMessage(hOverlayWnd, WM_APP + 100, VK_LBUTTON, 0);			
+		}
+		else if (wParam == WM_LBUTTONDOWN && VK_LBUTTON == SHUTDOWN_KEYBIND) {
+			PostMessage(hOverlayWnd, WM_DESTROY, 0, 0);			
+		}
+		else if (wParam == WM_RBUTTONDOWN && (ENABLE_KEYBIND == VK_RBUTTON || RESTART_KEYBIND == VK_RBUTTON || TOGGLE_KEYBIND == VK_RBUTTON)) {
+			PostMessage(hOverlayWnd, WM_APP + 100, VK_RBUTTON, 0);			
+		}
+		else if (wParam == WM_RBUTTONDOWN && VK_RBUTTON == SHUTDOWN_KEYBIND) {
+			PostMessage(hOverlayWnd, WM_DESTROY, 0, 0);			
+		}
+	}
+	return CallNextHookEx(hMouseHook, code, wParam, lParam);
 }
 
 void RedrawPowerDisplay()
@@ -287,6 +307,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR nCmdLin
 	SetWindowPos(hPowerDisplayWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 
 	hKeyHook = SetWindowsHookEx(WH_KEYBOARD_LL, LLKeyboardProc, hInstance, 0);
+	hMouseHook = SetWindowsHookEx(WH_MOUSE_LL, LLMouseProc, hInstance, 0);
 	
 	UINT_PTR timerId = SetTimer(nullptr, 0, CONSUMPTION_INTERVAL, TimerProc);
 	
@@ -298,6 +319,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR nCmdLin
 	}
 
 	if (hKeyHook) UnhookWindowsHookEx(hKeyHook);
+	if (hMouseHook) UnhookWindowsHookEx(hMouseHook);
 	KillTimer(nullptr, timerId);
 	return static_cast<int>(msg.wParam);
 }
