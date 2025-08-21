@@ -18,7 +18,7 @@ https://github.com/user-attachments/assets/79baa319-0483-48e3-8e1c-0db798d92039
   <li><b>Press the button that enables the overlay if you've finished the night</b><br />&nbsp;&nbsp;(<b>'F6'</b> by default)</li>
 </ul>
 <ol>
-5. <b>Shut down</b> overlay when you've done<br />&nbsp;&nbsp;(<b>'F8'</b> by default)
+5. <b>Shut down</b> the overlay when you've done<br />&nbsp;&nbsp;(<b>'F8'</b> by default)
 </ol>
 
 ## How to customize:
