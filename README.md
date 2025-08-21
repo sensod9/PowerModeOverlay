@@ -31,7 +31,7 @@ https://github.com/user-attachments/assets/79baa319-0483-48e3-8e1c-0db798d92039
 enable: F2
 restart: R
 toggle: Shift
-shutdown: default   ; F6  (it's just comment)
+shutdown: default   ; F8  (it's just comment)
 
 [POWER_SETTINGS]
 amount: 199     	; 199%
