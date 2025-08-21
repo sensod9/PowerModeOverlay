@@ -1,6 +1,10 @@
 # PowerModeOverlay
 > Recreation of the power mode from [FNaCEC:R](https://gamejolt.com/games/fnacecr/563650) (Five Night's at Freddy's fangame). This customizable overlay let you play any FNaF-like game with power mode
 
+
+https://github.com/user-attachments/assets/79baa319-0483-48e3-8e1c-0db798d92039
+
+
 ## How to use:
 <ol>
   <li><b>Download and run <code>PowerModeOverlay.exe</code> from <a href="https://github.com/sensod9/PowerModeOverlay/releases">releases page</a></b></li>
