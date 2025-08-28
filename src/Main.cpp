@@ -144,7 +144,7 @@ LRESULT PowerDisplayProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					"'%s': Toggle visibility\n"
 					"'%s': Shut down overlay\n"
 					"how to use and customize keybinds:\n"
-					"github.com/sensod9/PowerModeOverlay   v1.0.0", enableKeybindStr.c_str(), restartKeybindStr.c_str(), toggleKeybindStr.c_str(), shutdownKeybindStr.c_str());
+					"github.com/sensod9/PowerModeOverlay   v1.0.1", enableKeybindStr.c_str(), restartKeybindStr.c_str(), toggleKeybindStr.c_str(), shutdownKeybindStr.c_str());
 				SelectObject(hdc, hFont);
 				DrawTextEx(hdc, const_cast<char*>(text), -1, &rect, NULL, nullptr);
 			}
