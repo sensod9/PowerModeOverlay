@@ -18,7 +18,7 @@
 </ol>
 
 ## How to customize:
-### You can change **<ins>keybinds</ins>**, **<ins>power amount</ins>** and **<ins>power consumption rate</ins>** by specifying **<ins>key:value</ins>** pairs in `pmode.cfg` file.
+### You can change **<ins>keybinds</ins>**, **<ins>power amount</ins>**, **<ins>power consumption rate</ins>** and make **<ins>hold "toggle" button to consume power</ins>**  by specifying **<ins>key:value</ins>** pairs in `pmode.cfg` file.
 #### The default `pmode.cfg` file comes with the `PowerModeOverlay.exe` on every release. Also you can create it yourself
 #### `pmode.cfg` must be in the same folder as `PowerModeOverlay.exe` so you may find useful to have copies of the `PowerModeOverlay.exe` with various `pmode.cfg` files in different games' folders
 ## Example of `pmode.cfg`:
@@ -27,12 +27,19 @@
 enable: F2
 restart: R
 toggle: Shift
-shutdown: default   ; F6  (it's just comment)
+shutdown: default           ; F6  (it's just comment)
 
 [POWER_SETTINGS]
-amount: 199     	; 199%
-consumption: 50 	; 1 = 1ms to consume 0.1% of power. 
-                 	; on consumption=50 it takes 50*100*10ms = 50000ms = 50s
-               	 	; to consume 100% if the vision is uncovered
+amount: 199     	        ; 199%
+consumption: 50 	        ; 1 = 1ms to consume 0.1% of power. 
+                 	        ; on consumption=50 it takes 50*100*10ms = 50000ms = 50s
+               	 	        ; to consume 100% if the vision is uncovered
+
+[ADDITIONAL_FLAGS]
+holdToConsumePower: true 	; makes hold "toggle" button to consume power
+
+[POSITIONING]
+x: 99
+y: 9
 ```
 ### Default values reference and keybinds reference are in `pmode.cfg` that comes on every [release](https://github.com/sensod9/PowerModeOverlay/releases)
