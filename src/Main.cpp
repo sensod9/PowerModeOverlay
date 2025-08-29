@@ -17,6 +17,11 @@ unsigned int RESTART_KEYBIND = StringToVKey(restartKeybindStr);
 unsigned int TOGGLE_KEYBIND = StringToVKey(toggleKeybindStr);
 unsigned int SHUTDOWN_KEYBIND = StringToVKey(shutdownKeybindStr);
 
+bool HOLD_TO_CONSUME_POWER = false;
+
+unsigned int HPOS = 50;
+unsigned int VPOS = 20;
+
 enum Phases {
 	Disabled,
 	Started,
@@ -36,14 +41,34 @@ bool covered = false; // is screen covered in black
 
 LRESULT LLKeyboardProc(int code, WPARAM wParam, LPARAM lParam)
 {
+	static bool enablePressed = false;
+	static bool restartPressed = false;
+	static bool togglePressed = false;
+
 	if (code == HC_ACTION) {
 		if (wParam == WM_KEYDOWN) {
 			KBDLLHOOKSTRUCT* pHookStruct = reinterpret_cast<KBDLLHOOKSTRUCT*>(lParam);
-			if (pHookStruct->vkCode == ENABLE_KEYBIND || pHookStruct->vkCode == RESTART_KEYBIND || pHookStruct->vkCode == TOGGLE_KEYBIND) {
+			if (pHookStruct->vkCode == ENABLE_KEYBIND && !enablePressed || 
+				pHookStruct->vkCode == RESTART_KEYBIND && !restartPressed || 
+				pHookStruct->vkCode == TOGGLE_KEYBIND && !togglePressed) {
 				PostMessage(hOverlayWnd, WM_APP + 100, pHookStruct->vkCode, 0);			
 			}
 			else if (pHookStruct->vkCode == SHUTDOWN_KEYBIND) {
 				PostMessage(hOverlayWnd, WM_DESTROY, 0, 0);			
+			}
+			if (pHookStruct->vkCode == ENABLE_KEYBIND) enablePressed = true;
+			if (pHookStruct->vkCode == RESTART_KEYBIND) restartPressed = true;
+			if (pHookStruct->vkCode == TOGGLE_KEYBIND) togglePressed = true;
+		}
+		else if (wParam == WM_KEYUP) {
+			KBDLLHOOKSTRUCT* pHookStruct = reinterpret_cast<KBDLLHOOKSTRUCT*>(lParam);
+			if (pHookStruct->vkCode == ENABLE_KEYBIND) enablePressed = false;
+			if (pHookStruct->vkCode == RESTART_KEYBIND) restartPressed = false;
+			if (pHookStruct->vkCode == TOGGLE_KEYBIND) {
+				if (HOLD_TO_CONSUME_POWER) {
+					PostMessage(hOverlayWnd, WM_APP + 100, pHookStruct->vkCode, 0);			
+				}
+				togglePressed = false;
 			}
 		}
 	}
@@ -65,6 +90,14 @@ LRESULT LLMouseProc(int code, WPARAM wParam, LPARAM lParam)
 		else if (wParam == WM_RBUTTONDOWN && VK_RBUTTON == SHUTDOWN_KEYBIND) {
 			PostMessage(hOverlayWnd, WM_DESTROY, 0, 0);			
 		}
+		else {
+			if (wParam == WM_LBUTTONUP && TOGGLE_KEYBIND == VK_LBUTTON) {
+				PostMessage(hOverlayWnd, WM_APP + 100, VK_LBUTTON, 0);			
+			}
+			else if (wParam == WM_RBUTTONUP && TOGGLE_KEYBIND == VK_RBUTTON) {
+				PostMessage(hOverlayWnd, WM_APP + 100, VK_RBUTTON, 0);
+			}
+		} 
 	}
 	return CallNextHookEx(hMouseHook, code, wParam, lParam);
 }
@@ -144,7 +177,7 @@ LRESULT PowerDisplayProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					"'%s': Toggle visibility\n"
 					"'%s': Shut down overlay\n"
 					"how to use and customize keybinds:\n"
-					"github.com/sensod9/PowerModeOverlay   v1.0.1", enableKeybindStr.c_str(), restartKeybindStr.c_str(), toggleKeybindStr.c_str(), shutdownKeybindStr.c_str());
+					"github.com/sensod9/PowerModeOverlay   v1.1.0", enableKeybindStr.c_str(), restartKeybindStr.c_str(), toggleKeybindStr.c_str(), shutdownKeybindStr.c_str());
 				SelectObject(hdc, hFont);
 				DrawTextEx(hdc, const_cast<char*>(text), -1, &rect, NULL, nullptr);
 			}
@@ -210,6 +243,8 @@ LRESULT OverlayProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					covered = !covered;
 					if (covered) {
 						CoverScreen();
+						power--;
+						RedrawPowerDisplay();
 					}
 					else {
 						UncoverScreen();
@@ -236,6 +271,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR nCmdLin
 	if (configParser.load("pmode.cfg")) {
 		MAX_POWER = configParser.getInt("amount", MAX_POWER/10)*10;
 		CONSUMPTION_INTERVAL = configParser.getInt("consumption", CONSUMPTION_INTERVAL);
+		HOLD_TO_CONSUME_POWER = configParser.getString("holdToConsumePower", HOLD_TO_CONSUME_POWER ? "true" : "false") == "true" ? true : false;
+		
+		HPOS = configParser.getInt("x", HPOS);
+		VPOS = configParser.getInt("y", VPOS);
 
 		std::string keybindStr;
 		keybindStr = configParser.getString("enable");
@@ -295,7 +334,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR nCmdLin
 		return 1;
 	}
 
-	if (hPowerDisplayWnd = CreateWindowEx(WS_EX_TOPMOST | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_LAYERED, "PowerDisplayClass", "Power Display", WS_POPUP | WS_VISIBLE, 50, 20, 450, 120, nullptr, nullptr, hInstance, nullptr); !hPowerDisplayWnd) {
+	if (hPowerDisplayWnd = CreateWindowEx(WS_EX_TOPMOST | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_LAYERED, "PowerDisplayClass", "Power Display", WS_POPUP | WS_VISIBLE, HPOS, VPOS, 450, 120, nullptr, nullptr, hInstance, nullptr); !hPowerDisplayWnd) {
 		MessageBox(nullptr, "An error occured while creating the window", "Error", MB_ICONERROR);
 		return 1;
 	}
