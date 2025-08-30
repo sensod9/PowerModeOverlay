@@ -31,7 +31,7 @@ shutdown: default           ; F6  (it's just comment)
 
 [POWER_SETTINGS]
 amount: 199     	        ; 199%
-consumption: 50 	        ; 1 = 1ms to consume 0.1% of power. 
+consumption: 15 	        ; 1 = 1ms to consume 0.1% of power. 
                  	        ; on consumption=50 it takes 50*100*10ms = 50000ms = 50s
                	 	        ; to consume 100% if the vision is uncovered
 
